@@ -266,6 +266,12 @@ autoinstall:
         nameservers:
           addresses:
             - $server_dns
+  late-commands:
+    - |
+      cat <<EOF | sudo tee /target/etc/sudoers.d/010_ubuntu-nopasswd
+      ubuntu ALL=(ALL) NOPASSWD:ALL
+      EOF
+    - curtin in-target --target /target chmod 440 /etc/sudoers.d/010_ubuntu-nopasswd
 EOF
 
     log_info "http done"
