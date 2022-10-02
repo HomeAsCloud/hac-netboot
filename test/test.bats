@@ -120,6 +120,21 @@ teardown() {
     fi
 }
 
+@test "get default gateway and dns" {
+    if [[ $OSTYPE =~ darwin* ]]; then
+        gateway=$(route -n get default | grep gateway | awk '{print $2}')
+        assert_equal $gateway $(get_default_gateway)
+        dns=$(scutil --dns | grep nameserver | tail -n 1 | awk '{print $3}')
+        assert_equal $dns $(get_default_dns)
+    fi
+    if [[ $OSTYPE =~ linux* ]]; then
+        gateway=$(ip route | grep default | awk '{print $3}')
+        assert_equal $gateway $(get_default_gateway)
+        dns=$(resolvectl | grep 'Current DNS Server' | awk -F ':' '{print $2}')
+        assert_equal $dns $(get_default_dns)
+    fi
+}
+
 @test "img mount" {
     img_file='2022-09-06-raspios-bullseye-arm64-lite.img'
     run is_linux
