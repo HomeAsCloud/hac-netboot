@@ -155,13 +155,40 @@ EOF
     cat <<EOF | tee $tftproot/$device_id/cmdline.txt 2>&1 1>/dev/null
 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=$temp,vers=3 ip=$node_ip::::::dhcp rw rootwait elevator=deadline
 EOF
-
-    cat <<EOF | tee $nfsroot/$device_id/etc/fstab 2>&1 1>/dev/null
-proc            /proc           proc    defaults          0       0
-EOF
     cat <<EOF | tee $nfsroot/$device_id/etc/hostname 2>&1 1>/dev/null
 $device_id
 EOF
+    cat <<EOF | tee $nfsroot/$device_id/etc/hosts 2>&1 1>/dev/null
+127.0.0.1 localhost
+127.0.1.1 $device_id
+
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+EOF
+
+    log_info "  configuring fstab"
+    cat <<EOF | tee $nfsroot/$device_id/etc/fstab 2>&1 1>/dev/null
+proc            /proc           proc    defaults          0       0
+EOF
+
+    log_info "  configuring iptables"
+    rm $nfsroot/$device_id/usr/sbin/iptables
+    cp $nfsroot/$device_id/usr/sbin/xtables-legacy-multi $nfsroot/$device_id/usr/sbin/iptables
+    rm $nfsroot/$device_id/usr/sbin/iptables-restore
+    cp $nfsroot/$device_id/usr/sbin/xtables-legacy-multi $nfsroot/$device_id/usr/sbin/iptables-restore
+    rm $nfsroot/$device_id/usr/sbin/iptables-save
+    cp $nfsroot/$device_id/usr/sbin/xtables-legacy-multi $nfsroot/$device_id/usr/sbin/iptables-save
+
+    rm $nfsroot/$device_id/usr/sbin/ip6tables
+    cp $nfsroot/$device_id/usr/sbin/xtables-nft-multi $nfsroot/$device_id/usr/sbin/ip6tables
+    rm $nfsroot/$device_id/usr/sbin/ip6tables-restore
+    cp $nfsroot/$device_id/usr/sbin/xtables-nft-multi $nfsroot/$device_id/usr/sbin/ip6tables-restore
+    rm $nfsroot/$device_id/usr/sbin/ip6tables-save
+    cp $nfsroot/$device_id/usr/sbin/xtables-nft-multi $nfsroot/$device_id/usr/sbin/ip6tables-save
 
     log_info "  umounting raspberry-pi lite img"
     img_umount $cur_device download/boot download/root
