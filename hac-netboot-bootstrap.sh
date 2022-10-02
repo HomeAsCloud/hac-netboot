@@ -231,12 +231,24 @@ function install_http() {
     done
     if [ -z $server_address ]; then
         server_address=$(get_input "input server address(CIDR format-192.168.0.6/24):")
+    else
+            log_info "    configuring cloud-init: address is $server_address"
     fi
     if [ -z $server_gateway ]; then
-        server_gateway=$(get_input "input server gateway:")
+        server_gateway=$(get_default_gateway)
+        if [ -z $server_gateway ]; then
+            server_gateway=$(get_input "input server gateway:")
+        else
+            log_info "    configuring cloud-init: gateway is $server_gateway"
+        fi
     fi
     if [ -z $server_dns ]; then
-        server_dns=$(get_input "input server dns:")
+        server_dns=$(get_default_dns)
+        if [ -z $server_dns ]; then
+            server_dns=$(get_input "input server dns:")
+        else
+            log_info "    configuring cloud-init: dns is $server_dns"
+        fi
     fi
     touch httproot/cloud-init/meta-data
     cat <<EOF | tee httproot/cloud-init/user-data

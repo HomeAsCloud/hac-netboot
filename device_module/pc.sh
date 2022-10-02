@@ -95,12 +95,24 @@ function device_add_pc() {
     done
     if [ -z $node_address ]; then
         node_address=$(get_input "input node address(CIDR format-192.168.0.6/24):")
+    else
+            log_info "    configuring cloud-init: address is $node_address"
     fi
     if [ -z $node_gateway ]; then
-        node_gateway=$(get_input "input node gateway:")
+        node_gateway=$(get_default_gateway)
+        if [ -z $node_gateway ]; then
+            node_gateway=$(get_input "input node gateway:")
+        else
+            log_info "    configuring cloud-init: gateway is $node_gateway"
+        fi
     fi
     if [ -z $node_dns ]; then
-        node_dns=$(get_input "input node dns:")
+        node_dns=$(get_default_dns)
+        if [ -z $node_dns ]; then
+            node_dns=$(get_input "input node dns:")
+        else
+            log_info "    configuring cloud-init: dns is $node_dns"
+        fi
     fi
     mkdir -p $httproot/$device_id/cloud-init/
     touch $httproot/$device_id/cloud-init/meta-data
