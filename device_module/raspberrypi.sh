@@ -165,7 +165,7 @@ EOF
         temp="$nfs_path/$device_id"
     fi
     cat <<EOF | tee $tftproot/$device_id/cmdline.txt 2>&1 1>/dev/null
-console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=$temp,vers=3 ip=$node_ip::::::dhcp rw rootwait elevator=deadline
+console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=$temp,vers=3 ip=$node_ip::::::dhcp rw rootwait elevator=deadline cgroup_memory=1 cgroup_enable=memory
 EOF
     cat <<EOF | tee $nfsroot/$device_id/etc/hostname 2>&1 1>/dev/null
 $device_id
