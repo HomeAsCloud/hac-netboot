@@ -147,6 +147,8 @@ autoinstall:
       ubuntu ALL=(ALL) NOPASSWD:ALL
       EOF
     - curtin in-target --target /target chmod 440 /etc/sudoers.d/010_ubuntu-nopasswd
+    - curtin in-target --target /target -- update-alternatives --set iptables /usr/sbin/iptables-legacy
+    - curtin in-target --target /target -- update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 EOF
 
     # bootloader

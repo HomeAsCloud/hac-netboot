@@ -196,11 +196,11 @@ EOF
     cp $nfsroot/$device_id/usr/sbin/xtables-legacy-multi $nfsroot/$device_id/usr/sbin/iptables-save
 
     rm $nfsroot/$device_id/usr/sbin/ip6tables
-    cp $nfsroot/$device_id/usr/sbin/xtables-nft-multi $nfsroot/$device_id/usr/sbin/ip6tables
+    cp $nfsroot/$device_id/usr/sbin/xtables-legacy-multi $nfsroot/$device_id/usr/sbin/ip6tables
     rm $nfsroot/$device_id/usr/sbin/ip6tables-restore
-    cp $nfsroot/$device_id/usr/sbin/xtables-nft-multi $nfsroot/$device_id/usr/sbin/ip6tables-restore
+    cp $nfsroot/$device_id/usr/sbin/xtables-legacy-multi $nfsroot/$device_id/usr/sbin/ip6tables-restore
     rm $nfsroot/$device_id/usr/sbin/ip6tables-save
-    cp $nfsroot/$device_id/usr/sbin/xtables-nft-multi $nfsroot/$device_id/usr/sbin/ip6tables-save
+    cp $nfsroot/$device_id/usr/sbin/xtables-legacy-multi $nfsroot/$device_id/usr/sbin/ip6tables-save
 
     log_info "  umounting raspberry-pi lite img"
     img_umount $cur_device download/boot download/root
