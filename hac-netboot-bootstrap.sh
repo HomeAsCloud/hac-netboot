@@ -265,7 +265,7 @@ autoinstall:
     authorized-keys:
       - $(cat $rsa_public)
   packages:
-    [dnsmasq, nfs-kernel-server, nginx]
+    [dnsmasq, targetcli-fb, nginx]
   network:
     version: 2
     ethernets:

@@ -19,11 +19,10 @@ function usage() {
     log "      options: --node-address     address of static network(CIDR format. example: 192.168.0.6/24)"
     log "      options: --node-gateway     gateway of static network(example: 192.168.0.1)"
     log "      options: --node-dns         dns(example: 192.168.0.1)"
-    log "      options: --nfs-path         nfs path(example: 192.168.0.1:/nfsroot)"
 }
 
 function check_depends() {
-    local commands=(awk cat cp kpartx losetup mkdir mount mv grep systemctl tar tee wget xz)
+    local commands=(awk cat cp kpartx losetup mkdir mount mv grep systemctl tar targetcli tee wget xz)
     local not_exist_commands=()
 
     log_warn "checking depends"
@@ -54,14 +53,14 @@ function prepare_dist_dir() {
     #/var/hac
     #     |--tftproot
     #     |--httproot
-    #     |--nfsroot
+    #     |--iscsiroot
     mkdir -p /var/hac/tftproot
     mkdir -p /var/hac/httproot
-    mkdir -p /var/hac/nfsroot
+    mkdir -p /var/hac/iscsiroot
 }
 
 function check_services() {
-    local services=(dnsmasq nfs-kernel-server nginx)
+    local services=(dnsmasq nginx)
 
     for s in ${services[@]}; do
         service_enable_if_disabled $s
@@ -121,19 +120,6 @@ EOF
     return $?
 }
 
-function configure_nfs() {
-    local hac_nfs_export='/var/hac/nfsroot *(rw,sync,no_root_squash)'
-    grep -F "$hac_nfs_export" /etc/exports 2>&1 1>/dev/null
-    if [ $? -ne 0 ]; then
-        echo $hac_nfs_export >>/etc/exports
-        service_restart 'nfs-kernel-server'
-    else
-        service_restart_if_inactive 'nfs-kernel-server'
-    fi
-
-    return $?
-}
-
 function configure_services() {
     local ret
 
@@ -143,11 +129,6 @@ function configure_services() {
     fi
 
     configure_http
-    if [ $? -ne 0 ]; then
-        return 1
-    fi
-
-    configure_nfs
     if [ $? -ne 0 ]; then
         return 1
     fi
@@ -208,7 +189,6 @@ function main() {
     local node_address
     local node_gateway
     local node_dns
-    local nfs_path='auto'
     local device_id
     local answer
     local ret1
@@ -230,7 +210,7 @@ function main() {
         fi
         device_id=$2
     fi
-    ARGS=$(getopt -l "node-address:,node-gateway:,node-dns:,nfs-path:,help" -a -o "h" -- "$@")
+    ARGS=$(getopt -l "node-address:,node-gateway:,node-dns:,help" -a -o "h" -- "$@")
     while [ ! -z "$1" ]; do
         case "$1" in
         -h | --help)
@@ -247,10 +227,6 @@ function main() {
             ;;
         --node-dns)
             node_dns=$2
-            shift
-            ;;
-        --nfs-path)
-            nfs_path=$2
             shift
             ;;
         *) ;;
@@ -293,11 +269,11 @@ function main() {
             echo -n "add $device_id ?[<enter:probe next>|yes]"
             read answer
             if [ "$answer" == "yes" ]; then
-                device_add $device_id $(get_default_ip) 12345 $nfs_path $node_address $node_gateway $node_dns
+                device_add $device_id $(get_default_ip) 12345 $node_address $node_gateway $node_dns
             fi
         done
     else
-        device_add $device_id $(get_default_ip) 12345 $nfs_path $node_address $node_gateway $node_dns
+        device_add $device_id $(get_default_ip) 12345 $node_address $node_gateway $node_dns
     fi
 
     return 0
