@@ -176,7 +176,7 @@ EOF
     node_ip=$(echo $node_address | awk -F '/' '{print $1}')
     iscsi_img_uuid=$(blkid $iscsiroot/$device_id.img | grep -o -E '\w{8}(-\w{4}){3}-\w{12}')
     cat <<EOF | tee $tftproot/$device_id/cmdline.txt 2>&1 1>/dev/null
-console=serial0,115200 console=tty1 root=UUID=$iscsi_img_uuid rootfstype=ext4 ip=$node_ip::::::dhcp rw rootwait elevator=deadline fsck.repair=yes cgroup_memory=1 cgroup_enable=memory ISCSI_INITIATOR=$iscsi_iqn-$device_id ISCSI_TARGET_NAME=$iscsi_iqn ISCSI_TARGET_IP=$ip ISCSI_TARGET_PORT=3260
+console=serial0,115200 console=tty1 root=UUID=$iscsi_img_uuid rootfstype=ext4 ip=$node_ip::$node_gateway:255.255.255.0:$device_id:eth0:off rw rootwait elevator=deadline fsck.repair=yes cgroup_memory=1 cgroup_enable=memory ISCSI_INITIATOR=$iscsi_iqn-$device_id ISCSI_TARGET_NAME=$iscsi_iqn ISCSI_TARGET_IP=$ip ISCSI_TARGET_PORT=3260
 EOF
     cat <<EOF | tee $iscsiroot/$device_id/etc/hostname 2>&1 1>/dev/null
 $device_id
